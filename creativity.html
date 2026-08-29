@@ -22,7 +22,7 @@
         <h1>Meshack Command</h1>
         <p>Edge node active. Telemetry running live from Kenya.</p>
         <div id="live-clock" style="font-family: monospace; color: #3fb950; margin-bottom: 15px; font-size: 0.9rem;">Initializing clock...</div>
-        <audio id="audio-elem" controls class="audio-player"><source src="offset.mp3" type="audio/mpeg"></audio>
+        <audio id="audio-elem" controls class="audio-player"><source src="worth-it.mp3" type="audio/mpeg"></audio>
         <div class="terminal-box" style="background: #010409; border: 1px solid #30363d; padding: 10px; border-radius: 6px; text-align: left; font-size: 0.75rem; color: #8b949e; height: 50px; overflow: hidden; margin-top: 15px; font-family: monospace;"><span style="color: #58a6ff;">sys@meshack:~#</span> <span id="log-text">Awaiting audio playback...</span></div>
         <a href="index.html" class="nav-btn secondary" style="margin-top: 15px; display: block;">Back to Home</a>
     </div>
@@ -33,7 +33,7 @@
         setInterval(updateClock, 1000); updateClock();
         const audio = document.getElementById('audio-elem'), cover = document.getElementById('bouncing-cover');
         let x = 50, y = 50, vx = 3, vy = 2.5, id = null;
-        audio.onplay = () => { document.getElementById('log-text').innerText = 'Playing Offset & Don Toliver. Full-screen active.'; cover.style.display = 'flex'; function f() { x += vx; y += vy; if(x <= 0 || x >= window.innerWidth - cover.clientWidth) vx *= -1; if(y <= 0 || y >= window.innerHeight - cover.clientHeight) vy *= -1; cover.style.left = x + 'px'; cover.style.top = y + 'px'; id = requestAnimationFrame(f); } f(); };
+        audio.onplay = () => { document.getElementById('log-text').innerText = 'Playing Offset & Don Toliver - WORTH IT. Full-screen active.'; cover.style.display = 'flex'; function f() { x += vx; y += vy; if(x <= 0 || x >= window.innerWidth - cover.clientWidth) vx *= -1; if(y <= 0 || y >= window.innerHeight - cover.clientHeight) vy *= -1; cover.style.left = x + 'px'; cover.style.top = y + 'px'; id = requestAnimationFrame(f); } f(); };
         audio.onpause = audio.onended = () => { cancelAnimationFrame(id); cover.style.display = 'none'; document.getElementById('log-text').innerText = 'Playback stopped.'; };
     </script>
 </body>
