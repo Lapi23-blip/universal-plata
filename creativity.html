@@ -3,22 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meshack | Creativity</title>
+    <title>Meshack | Command Center</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="card">
-        <span class="badge">VIBE UNLOCKED</span>
-        <h1>Meshack Creativity</h1>
-        <p>Welcome to Meshack creativity. Innovation running live from the edge.</p>
+        <span class="badge">SYSTEM ONLINE</span>
+        <h1>Meshack Command</h1>
+        <p>Edge node active. Telemetry running live from Kenya.</p>
         
-        <!-- Built-in audio player with native mobile controls -->
+        <!-- Live Clock Widget -->
+        <div id="live-clock" style="font-family: monospace; color: #3fb950; margin-bottom: 15px; font-size: 0.9rem;">
+            Initializing clock...
+        </div>
+
+        <!-- Built-in Audio Player -->
         <audio controls class="audio-player">
             <source src="soundtrack.mp3" type="audio/mpeg">
             Your browser does not support the audio element.
         </audio>
 
+        <!-- Dynamic Terminal Log -->
+        <div class="terminal-box" style="background: #010409; border: 1px solid #30363d; padding: 10px; border-radius: 6px; text-align: left; font-size: 0.75rem; color: #8b949e; height: 70px; overflow: hidden; margin-top: 15px; font-family: monospace;">
+            <span style="color: #58a6ff;">sys@meshack:~#</span> <span id="log-text">Connecting to remote node...</span>
+        </div>
+
         <a href="index.html" class="nav-btn secondary" style="margin-top: 15px;">Back to Home</a>
     </div>
+
+    <script>
+        // Real-time clock update
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('live-clock').innerText = "UTC: " + now.toUTCString().slice(17, 25);
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Simulated live terminal log rotation
+        const logs = [
+            "Handshaking with peer nodes...",
+            "Audio stream soundtrack.mp3 loaded.",
+            "Firewall status: SECURE [0 breaches]",
+            "Memory allocation stable at 4.2KB/s",
+            "Command center operational."
+        ];
+        let index = 0;
+        setInterval(() => {
+            index = (index + 1) % logs.length;
+            document.getElementById('log-text').innerText = logs[index];
+        }, 4000);
+    </script>
 </body>
 </html>
