@@ -6,7 +6,6 @@
     <title>Meshack | 90s CD Screen-Saver</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Authentic 90s Holographic Silver CD */
         #bouncing-cd {
             position: fixed;
             top: 0; left: 0;
@@ -22,7 +21,6 @@
             pointer-events: none;
             border: 2px solid rgba(255,255,255,0.6);
         }
-        /* Center Spindle Hole of the CD */
         #bouncing-cd::after {
             content: '';
             width: 22px; height: 22px;
@@ -31,8 +29,6 @@
             border: 2px solid #aaa;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.9);
         }
-
-        /* Song Selector Prompt Box */
         .song-prompt {
             background: #0d1117;
             border: 1px solid #30363d;
@@ -59,7 +55,7 @@
     <div id="bouncing-cd"></div>
 
     <div class="card">
-        <span class="badge">SYSTEM ONLINE</span>
+        <span class=adge>SYSTEM ONLINE</span>
         <h1>Meshack Command</h1>
         <p>Select your track and trigger the 90s CRT screen-saver.</p>
         
@@ -67,8 +63,7 @@
 
         <div class="song-prompt">
             <p style="color: #c9d1d9; font-size: 0.85rem; margin-bottom: 10px;">Which song do you want? 😊</p>
-            <button class="song-btn" onclick="selectTrack('worth-it.mp3', 'WORTH IT (Offset & Don Toliver)')">1. Worth It</button>
-            <button class="song-btn" onclick="selectTrack('offset.mp3', '2. Alternate Track')">2. Alternate Track</button>
+            <button class="song-btn" onclick="selectTrack('worth-it.mp3', 'WORTH IT (Offset & Don Toliver)')">WORTH IT 💿</button>
         </div>
 
         <audio id="audio-elem" controls class="audio-player"></audio>
@@ -90,10 +85,11 @@
 
         function selectTrack(filename, title) {
             audio.src = filename;
+            audio.load();
             audio.play().then(() => {
                 document.getElementById('log-text').innerText = 'Playing: ' + title + ' 💿';
             }).catch(e => {
-                document.getElementById('log-text').innerText = 'Playback error: check file.';
+                document.getElementById('log-text').innerText = 'Error: Check audio file path.';
             });
         }
 
