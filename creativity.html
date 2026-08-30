@@ -29,7 +29,7 @@
             border: 2px solid #aaa;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.9);
         }
-        .song-prompt {
+        .search-box-container {
             background: #0d1117;
             border: 1px solid #30363d;
             padding: 15px;
@@ -37,38 +37,68 @@
             margin-bottom: 15px;
             text-align: center;
         }
-        .song-btn {
+        .search-input {
+            width: 70%;
+            padding: 8px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            border-radius: 6px;
+            font-family: monospace;
+            outline: none;
+        }
+        .search-btn {
             background: #238636;
             color: white;
             border: none;
             padding: 8px 12px;
-            margin: 5px;
+            margin-left: 5px;
             border-radius: 6px;
             font-family: monospace;
             cursor: pointer;
-            font-size: 0.8rem;
         }
-        .song-btn:hover { background: #2ea043; }
+        .search-btn:hover { background: #2ea043; }
+        
+        .results-list {
+            margin-top: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            text-align: left;
+        }
+        .result-item {
+            background: #161b22;
+            padding: 6px 10px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            color: #58a6ff;
+            font-family: monospace;
+            border: 1px solid #30363d;
+        }
+        .result-item:hover { background: #30363d; color: #fff; }
     </style>
 </head>
 <body>
     <div id="bouncing-cd"></div>
 
     <div class="card">
-        <span class=adge>SYSTEM ONLINE</span>
+        <span class="badge">SYSTEM ONLINE</span>
         <h1>Meshack Command</h1>
-        <p>Select your track and trigger the 90s CRT screen-saver.</p>
+        <p>Search any song in the world and trigger the 90s CRT screen-saver.</p>
         
         <div id="live-clock" style="font-family: monospace; color: #3fb950; margin-bottom: 15px; font-size: 0.9rem;">Initializing clock...</div>
 
-        <div class="song-prompt">
-            <p style="color: #c9d1d9; font-size: 0.85rem; margin-bottom: 10px;">Which song do you want? 😊</p>
-            <button class="song-btn" onclick="selectTrack('worth-it.mp3', 'WORTH IT (Offset & Don Toliver)')">WORTH IT 💿</button>
+        <div class="search-box-container">
+            <p style="color: #c9d1d9; font-size: 0.85rem; margin-bottom: 10px;">Search any song... 😊</p>
+            <input type="text" id="query-input" class="search-input" placeholder="e.g. Worth It Don Toliver">
+            <button class="search-btn" onclick="searchSongs()">Search</button>
+            <div id="search-results" class="results-list"></div>
         </div>
 
         <audio id="audio-elem" controls class="audio-player"></audio>
 
-        <div class="terminal-box" style="background: #010409; border: 1px solid #30363d; padding: 10px; border-radius: 6px; text-align: left; font-size: 0.75rem; color: #8b949e; height: 50px; overflow: hidden; margin-top: 15px; font-family: monospace;"><span style="color: #58a6ff;">sys@meshack:~#</span> <span id="log-text">Waiting for track selection...</span></div>
+        <div class="terminal-box" style="background: #010409; border: 1px solid #30363d; padding: 10px; border-radius: 6px; text-align: left; font-size: 0.75rem; color: #8b949e; height: 50px; overflow: hidden; margin-top: 15px; font-family: monospace;"><span style="color: #58a6ff;">sys@meshack:~#</span> <span id="log-text">Awaiting search query...</span></div>
 
         <a href="index.html" class="nav-btn secondary" style="margin-top: 15px; display: block;">Back to Home</a>
     </div>
@@ -83,14 +113,35 @@
         const cd = document.getElementById('bouncing-cd');
         let x = 50, y = 50, vx = 3.5, vy = 3, id = null;
 
-        function selectTrack(filename, title) {
-            audio.src = filename;
-            audio.load();
-            audio.play().then(() => {
-                document.getElementById('log-text').innerText = 'Playing: ' + title + ' 💿';
-            }).catch(e => {
-                document.getElementById('log-text').innerText = 'Error: Check audio file path.';
-            });
+        async function searchSongs() {
+            const query = document.getElementById('query-input').value;
+            document.getElementById('log-text').innerText = 'Searching global database...';
+            
+            try {
+                let response = await fetch('https://itunes.apple.com/search?term=' + encodeURIComponent(query) + '&media=music&limit=5');
+                let data = await response.json();
+                let resultsDiv = document.getElementById('search-results');
+                resultsDiv.innerHTML = '';
+
+                if(data.results.length === 0) {
+                    resultsDiv.innerHTML = '<div class="result-item">No tracks found. Try another search.</div>';
+                    return;
+                }
+
+                data.results.forEach(song => {
+                    let div = document.createElement('div');
+                    div.className = 'result-item';
+                    div.innerHTML = '💿 ' + song.trackName + ' - ' + song.artistName;
+                    div.onclick = () => {
+                        audio.src = song.previewUrl;
+                        audio.play();
+                        document.getElementById('log-text').innerText = 'Playing: ' + song.trackName + ' by ' + song.artistName + ' 💿';
+                    };
+                    resultsDiv.appendChild(div);
+                });
+            } catch(e) {
+                document.getElementById('log-text').innerText = 'Search error occurred.';
+            }
         }
 
         function startBouncing() {
