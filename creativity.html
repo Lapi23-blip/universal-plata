@@ -3,147 +3,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meshack | Music Player & Artwork</title>
+    <title>Meshack | Cinematic Audio Streamer</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Album Artwork Display */
-        #album-art-container {
-            width: 120px; height: 120px;
-            margin: 0 auto 15px auto;
-            display: none;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            border: 1px solid #30363d;
+        :root {
+            --bg-deep: #0a0c10;
+            --surface-glass: rgba(18, 22, 31, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-main: #f0f6fc;
+            --text-muted: #8b949e;
+            --accent-green: #2ea043;
         }
-        #album-art-container img {
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient Animated Side Neon Lights */
+        .ambient-light {
+            position: fixed;
+            top: 0; bottom: 0;
+            width: 180px;
+            filter: blur(90px);
+            opacity: 0.35;
+            z-index: 1;
+            pointer-events: none;
+            animation: pulseGlow 10s ease-in-out infinite alternate;
+        }
+        .ambient-left {
+            left: -60px;
+            background: linear-gradient(135deg, #7928ca, #4f46e5, #00f2fe);
+        }
+        .ambient-right {
+            right: -60px;
+            background: linear-gradient(135deg, #2ea043, #00f2fe, #7928ca);
+            animation-delay: -5s;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1) translateY(0); opacity: 0.25; }
+            50% { transform: scale(1.1) translateY(-20px); opacity: 0.45; }
+            100% { transform: scale(1) translateY(0); opacity: 0.25; }
+        }
+
+        /* Cinematic Glass Container */
+        .player-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 420px;
+            background: var(--surface-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 30px 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255,255,255,0.1);
+            margin: 20px;
+            text-align: center;
+        }
+
+        /* Top System Status */
+        .system-badge {
+            display: inline-block;
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: #3fb950;
+            background: rgba(46, 160, 67, 0.12);
+            border: 1px solid rgba(46, 160, 67, 0.3);
+            padding: 4px 10px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        /* Album Artwork Box */
+        .artwork-wrapper {
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 20px auto;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #161b22;
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .artwork-wrapper img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.5s ease;
         }
-        .search-box-container {
-            background: #0d1117;
-            border: 1px solid #30363d;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            text-align: center;
+        .artwork-wrapper:hover img { transform: scale(1.03); }
+        .artwork-placeholder {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-family: monospace;
+        }
+
+        /* Song Metadata */
+        .song-info {
+            margin-bottom: 25px;
+        }
+        #song-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        #artist-name {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Search Section */
+        .search-box {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
         }
         .search-input {
-            width: 70%;
-            padding: 8px;
-            background: #161b22;
-            border: 1px solid #30363d;
-            color: #c9d1d9;
-            border-radius: 6px;
-            font-family: monospace;
+            flex: 1;
+            background: rgba(22, 27, 34, 0.8);
+            border: 1px solid var(--border-glass);
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: var(--text-main);
+            font-size: 0.85rem;
             outline: none;
+            transition: border-color 0.2s;
         }
+        .search-input:focus { border-color: #58a6ff; }
         .search-btn {
             background: #238636;
             color: white;
             border: none;
-            padding: 8px 12px;
-            margin-left: 5px;
-            border-radius: 6px;
-            font-family: monospace;
+            padding: 0 16px;
+            border-radius: 10px;
+            font-weight: 600;
             cursor: pointer;
+            transition: background 0.2s;
         }
         .search-btn:hover { background: #2ea043; }
-        .results-list {
-            margin-top: 10px;
-            max-height: 150px;
+
+        /* Search Results List */
+        .results-container {
+            max-height: 140px;
             overflow-y: auto;
+            margin-bottom: 20px;
             text-align: left;
+            border-radius: 8px;
         }
-        .result-item {
-            background: #161b22;
-            padding: 6px 10px;
-            margin-bottom: 5px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            cursor: pointer;
+        .result-row {
+            background: rgba(22, 27, 34, 0.5);
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            border-radius: 6px;
+            font-size: 0.78rem;
             color: #58a6ff;
-            font-family: monospace;
-            border: 1px solid #30363d;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .result-item:hover { background: #30363d; color: #fff; }
+        .result-row:hover {
+            background: rgba(48, 54, 61, 0.8);
+            border-color: var(--border-glass);
+            color: #fff;
+        }
+
+        /* Modern Audio Element Styling */
+        .audio-player-box {
+            background: rgba(13, 17, 23, 0.6);
+            border: 1px solid var(--border-glass);
+            padding: 12px;
+            border-radius: 14px;
+            margin-bottom: 15px;
+        }
+        audio {
+            width: 100%;
+            accent-color: #2ea043;
+            filter: invert(0.9) hue-rotate(180deg);
+        }
+
+        /* Terminal Console Log */
+        .console-box {
+            background: #010409;
+            border: 1px solid var(--border-glass);
+            padding: 10px 12px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.75rem;
+            font-family: monospace;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            overflow: hidden;
+            height: 42px;
+        }
+        .console-prefix { color: #58a6ff; }
+
+        /* Navigation Button */
+        .nav-link {
+            display: block;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .nav-link:hover { background: rgba(255, 255, 255, 0.08); }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div id="album-art-container">
-            <img id="album-art-img" src="" alt="Album Cover">
+
+    <div class="ambient-light ambient-left"></div>
+    <div class="ambient-light ambient-right"></div>
+
+    <div class="player-container">
+        <div class="system-badge">SYSTEM ONLINE</div>
+
+        <div class="artwork-wrapper" id="art-wrap">
+            <span class="artwork-placeholder">NO AUDIO LOADED</span>
+            <img id="album-art" src="" alt="Cover" style="display:none;">
         </div>
 
-        <span class="badge">SYSTEM ONLINE</span>
-        <h1>Meshack Command</h1>
-        <p>Search any song and display its album artwork.</p>
-        
-        <div id="live-clock" style="font-family: monospace; color: #3fb950; margin-bottom: 15px; font-size: 0.9rem;">Initializing clock...</div>
-
-        <div class="search-box-container">
-            <p style="color: #c9d1d9; font-size: 0.85rem; margin-bottom: 10px;">Search any song.🍻</p>
-            <input type="text" id="query-input" class="search-input" placeholder="e.g. Don Toliver">
-            <button class="search-btn" onclick="searchSongs()">Search</button>
-            <div id="search-results" class="results-list"></div>
+        <div class="song-info">
+            <div id="song-title">Select a Track</div>
+            <div id="artist-name">Meshack Audio Core</div>
         </div>
 
-        <audio id="audio-elem" controls class="audio-player"></audio>
+        <div class="search-box">
+            <input type="text" id="query-input" class="search-input" placeholder="Search any song or artist...">
+            <button class="search-btn" onclick="searchSongs()">Find</button>
+        </div>
 
-        <div class="terminal-box" style="background: #010409; border: 1px solid #30363d; padding: 10px; border-radius: 6px; text-align: left; font-size: 0.75rem; color: #8b949e; height: 50px; overflow: hidden; margin-top: 15px; font-family: monospace;"><span style="color: #58a6ff;">sys@meshack:~#</span> <span id="log-text">Awaiting search query...</span></div>
+        <div id="search-results" class="results-container"></div>
 
-        <a href="index.html" class="nav-btn secondary" style="margin-top: 15px; display: block;">Back to Home</a>
+        <div class="audio-player-box">
+            <audio id="audio-elem" controls></audio>
+        </div>
+
+        <div class="console-box">
+            <span class="console-prefix">sys@meshack:~#</span> <span id="log-text">Awaiting selection...</span>
+        </div>
+
+        <a href="index.html" class="nav-link">Back to Home</a>
     </div>
 
     <script>
-        function updateClock() {
-            document.getElementById('live-clock').innerText = 'UTC: ' + new Date().toUTCString().slice(17, 25);
-        }
-        setInterval(updateClock, 1000); updateClock();
-
         const audio = document.getElementById('audio-elem');
-        const artContainer = document.getElementById('album-art-container');
-        const artImg = document.getElementById('album-art-img');
+        const artWrap = document.getElementById('art-wrap');
+        const albumArt = document.getElementById('album-art');
+        const placeholder = artWrap.querySelector('.artwork-placeholder');
+        const songTitle = document.getElementById('song-title');
+        const artistName = document.getElementById('artist-name');
+        const logText = document.getElementById('log-text');
 
         async function searchSongs() {
             const query = document.getElementById('query-input').value;
-            document.getElementById('log-text').innerText = 'Searching global database...';
+            logText.innerText = 'Querying global music stream...';
             
             try {
-                let response = await fetch('https://itunes.apple.com/search?term=' + encodeURIComponent(query) + '&media=music&limit=5');
+                let response = await fetch('https://itunes.apple.com/search?term=' + encodeURIComponent(query) + '&media=music&limit=6');
                 let data = await response.json();
                 let resultsDiv = document.getElementById('search-results');
                 resultsDiv.innerHTML = '';
 
                 if(data.results.length === 0) {
-                    resultsDiv.innerHTML = '<div class="result-item">No tracks found. Try another search.</div>';
+                    resultsDiv.innerHTML = '<div class="result-row">No tracks located.</div>';
                     return;
                 }
 
                 data.results.forEach(song => {
                     let div = document.createElement('div');
-                    div.className = 'result-item';
-                    div.innerHTML = '💿 ' + song.trackName + ' - ' + song.artistName;
+                    div.className = 'result-row';
+                    div.innerHTML = '💿 ' + song.trackName + ' — ' + song.artistName;
                     
-                    // High-res artwork upgrade (swapping 100x100 for 400x400)
-                    let highResArt = song.artworkUrl100 ? song.artworkUrl100.replace('100x100bb', '400x400bb') : '';
+                    let highResArt = song.artworkUrl100 ? song.artworkUrl100.replace('100x100bb', '500x500bb') : '';
 
                     div.onclick = () => {
                         audio.src = song.previewUrl;
                         audio.play();
                         
+                        songTitle.innerText = song.trackName;
+                        artistName.innerText = song.artistName;
+
                         if(highResArt) {
-                            artImg.src = highResArt;
-                            artContainer.style.display = 'block';
+                            albumArt.src = highResArt;
+                            albumArt.style.display = 'block';
+                            placeholder.style.display = 'none';
                         }
                         
-                        document.getElementById('log-text').innerText = 'Playing: ' + song.trackName + ' by ' + song.artistName + ' 💿';
+                        logText.innerText = 'Streaming: ' + song.trackName;
                     };
                     resultsDiv.appendChild(div);
                 });
+                logText.innerText = 'Search results populated.';
             } catch(e) {
-                document.getElementById('log-text').innerText = 'Search error occurred.';
+                logText.innerText = 'Network query failed.';
             }
         }
     </script>
