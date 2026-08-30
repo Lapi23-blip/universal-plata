@@ -134,7 +134,7 @@
             font-weight: 400;
         }
 
-        /* Search Section */
+        /* Custom Track Selector (For Local Full-Length Files) */
         .search-box {
             display: flex;
             gap: 8px;
@@ -164,7 +164,7 @@
         }
         .search-btn:hover { background: #2ea043; }
 
-        /* Search Results List */
+        /* Track Results List */
         .results-container {
             max-height: 140px;
             overflow-y: auto;
@@ -247,28 +247,30 @@
         <div class="system-badge">SYSTEM ONLINE</div>
 
         <div class="artwork-wrapper" id="art-wrap">
-            <span class="artwork-placeholder">NO AUDIO LOADED</span>
+            <span class="artwork-placeholder">FULL AUDIO READY</span>
             <img id="album-art" src="" alt="Cover" style="display:none;">
         </div>
 
         <div class="song-info">
-            <div id="song-title">Select a Track</div>
-            <div id="artist-name">Meshack Audio Core</div>
+            <div id="song-title">Worth It (Full Track)</div>
+            <div id="artist-name">Offset & Don Toliver</div>
         </div>
 
         <div class="search-box">
-            <input type="text" id="query-input" class="search-input" placeholder="Search any song or artist...">
-            <button class="search-btn" onclick="searchSongs()">Find</button>
+            <input type="text" id="query-input" class="search-input" placeholder="Type filename e.g. worth-it.mp3">
+            <button class="search-btn" onclick="loadLocalTrack()">Load</button>
         </div>
 
-        <div id="search-results" class="results-container"></div>
+        <div id="search-results" class="results-container">
+            <div class="result-row" onclick="playPreset('worth-it.mp3', 'Worth It', 'Offset & Don Toliver')">💿 Play Local: Worth It (Full Track)</div>
+        </div>
 
         <div class="audio-player-box">
-            <audio id="audio-elem" controls></audio>
+            <audio id="audio-elem" controls src="worth-it.mp3"></audio>
         </div>
 
         <div class="console-box">
-            <span class="console-prefix">sys@meshack:~#</span> <span id="log-text">Awaiting selection...</span>
+            <span class="console-prefix">sys@meshack:~#</span> <span id="log-text">Full duration engine active. Ready to play.</span>
         </div>
 
         <a href="index.html" class="nav-link">Back to Home</a>
@@ -283,50 +285,44 @@
         const artistName = document.getElementById('artist-name');
         const logText = document.getElementById('log-text');
 
-        async function searchSongs() {
-            const query = document.getElementById('query-input').value;
-            logText.innerText = 'Querying global music stream...';
-            
-            try {
-                let response = await fetch('https://itunes.apple.com/search?term=' + encodeURIComponent(query) + '&media=music&limit=6');
-                let data = await response.json();
-                let resultsDiv = document.getElementById('search-results');
-                resultsDiv.innerHTML = '';
+        // Ensure audio element loads full metadata without restrictions
+        audio.preload = "auto";
 
-                if(data.results.length === 0) {
-                    resultsDiv.innerHTML = '<div class="result-row">No tracks located.</div>';
-                    return;
-                }
-
-                data.results.forEach(song => {
-                    let div = document.createElement('div');
-                    div.className = 'result-row';
-                    div.innerHTML = '💿 ' + song.trackName + ' — ' + song.artistName;
-                    
-                    let highResArt = song.artworkUrl100 ? song.artworkUrl100.replace('100x100bb', '500x500bb') : '';
-
-                    div.onclick = () => {
-                        audio.src = song.previewUrl;
-                        audio.play();
-                        
-                        songTitle.innerText = song.trackName;
-                        artistName.innerText = song.artistName;
-
-                        if(highResArt) {
-                            albumArt.src = highResArt;
-                            albumArt.style.display = 'block';
-                            placeholder.style.display = 'none';
-                        }
-                        
-                        logText.innerText = 'Streaming: ' + song.trackName;
-                    };
-                    resultsDiv.appendChild(div);
-                });
-                logText.innerText = 'Search results populated.';
-            } catch(e) {
-                logText.innerText = 'Network query failed.';
-            }
+        function playPreset(filename, title, artist) {
+            audio.src = filename;
+            audio.load();
+            audio.play().then(() => {
+                songTitle.innerText = title;
+                artistName.innerText = artist;
+                logText.innerText = 'Playing full duration: ' + title;
+            }).catch(e => {
+                logText.innerText = 'Error: Check if ' + filename + ' exists in repository.';
+            });
         }
+
+        function loadLocalTrack() {
+            const filename = document.getElementById('query-input').value.trim();
+            audio.src = filename;
+            audio.load();
+            audio.play().then(() => {
+                songTitle.innerText = filename;
+                artistName.innerText = 'Local Storage Stream';
+                logText.innerText = 'Streaming full file: ' + filename;
+            }).catch(e => {
+                logText.innerText = 'File not found in project folder.';
+            });
+        }
+
+        // Automatically monitor actual file duration when metadata loads
+        audio.onloadedmetadata = () => {
+            const durationMinutes = Math.floor(audio.duration / 60);
+            const durationSeconds = Math.floor(audio.duration % 60).toString().padStart(2, '0');
+            logText.innerText = 'Duration detected: ' + durationMinutes + ':' + durationSeconds + ' (Full track unlocked)';
+        };
+
+        audio.onplay = () => {
+            logText.innerText = 'Playback active from start to finish.';
+        };
     </script>
 </body>
 </html>
