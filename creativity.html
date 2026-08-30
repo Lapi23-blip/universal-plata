@@ -3,29 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meshack | Static CD Player</title>
+    <title>Meshack | Music Player & Artwork</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Static 90s Holographic Silver CD Badge */
-        #static-cd {
-            width: 90px; height: 90px;
-            background: radial-gradient(circle, #222 30%, transparent 31%),
-                        linear-gradient(135deg, #d4d4d4 0%, #ffffff 35%, #888 50%, #f0f0f0 75%, #555 100%);
-            border-radius: 50%;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 25px rgba(255, 255, 255, 0.4), inset 0 0 10px rgba(0,0,0,0.6);
+        /* Album Artwork Display */
+        #album-art-container {
+            width: 120px; height: 120px;
             margin: 0 auto 15px auto;
-            border: 2px solid rgba(255,255,255,0.6);
+            display: none;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            border: 1px solid #30363d;
         }
-        #static-cd::after {
-            content: '';
-            width: 22px; height: 22px;
-            background: #010409;
-            border-radius: 50%;
-            border: 2px solid #aaa;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.9);
+        #album-art-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .search-box-container {
             background: #0d1117;
@@ -78,17 +72,19 @@
 </head>
 <body>
     <div class="card">
-        <div id="static-cd"></div>
+        <div id="album-art-container">
+            <img id="album-art-img" src="" alt="Album Cover">
+        </div>
 
         <span class="badge">SYSTEM ONLINE</span>
         <h1>Meshack Command</h1>
-        <p>Search any song and play it with a stationary CD badge.</p>
+        <p>Search any song and display its album artwork.</p>
         
         <div id="live-clock" style="font-family: monospace; color: #3fb950; margin-bottom: 15px; font-size: 0.9rem;">Initializing clock...</div>
 
         <div class="search-box-container">
-            <p style="color: #c9d1d9; font-size: 0.85rem; margin-bottom: 10px;">Search any song... 😊</p>
-            <input type="text" id="query-input" class="search-input" placeholder="e.g. Worth It Don Toliver">
+            <p style="color: #c9d1d9; font-size: 0.85rem; margin-bottom: 10px;">Search any song.🍻</p>
+            <input type="text" id="query-input" class="search-input" placeholder="e.g. Don Toliver">
             <button class="search-btn" onclick="searchSongs()">Search</button>
             <div id="search-results" class="results-list"></div>
         </div>
@@ -107,7 +103,8 @@
         setInterval(updateClock, 1000); updateClock();
 
         const audio = document.getElementById('audio-elem');
-        const cd = document.getElementById('static-cd');
+        const artContainer = document.getElementById('album-art-container');
+        const artImg = document.getElementById('album-art-img');
 
         async function searchSongs() {
             const query = document.getElementById('query-input').value;
@@ -128,9 +125,19 @@
                     let div = document.createElement('div');
                     div.className = 'result-item';
                     div.innerHTML = '💿 ' + song.trackName + ' - ' + song.artistName;
+                    
+                    // High-res artwork upgrade (swapping 100x100 for 400x400)
+                    let highResArt = song.artworkUrl100 ? song.artworkUrl100.replace('100x100bb', '400x400bb') : '';
+
                     div.onclick = () => {
                         audio.src = song.previewUrl;
                         audio.play();
+                        
+                        if(highResArt) {
+                            artImg.src = highResArt;
+                            artContainer.style.display = 'block';
+                        }
+                        
                         document.getElementById('log-text').innerText = 'Playing: ' + song.trackName + ' by ' + song.artistName + ' 💿';
                     };
                     resultsDiv.appendChild(div);
@@ -139,9 +146,6 @@
                 document.getElementById('log-text').innerText = 'Search error occurred.';
             }
         }
-
-        audio.onplay = () => { cd.style.display = 'flex'; };
-        audio.onpause = audio.onended = () => { cd.style.display = 'none'; };
     </script>
 </body>
 </html>
