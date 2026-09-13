@@ -12,7 +12,6 @@
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            /* Updated subtle gradient background */
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: #ffffff;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -26,7 +25,7 @@
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
-            padding: 35px 20px;
+            padding: 40px 24px;
             max-width: 360px;
             width: 100%;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
@@ -34,25 +33,18 @@
             flex-direction: column;
             align-items: center;
         }
-        .image-container img {
-            width: 150px;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(255, 105, 180, 0.3);
-        }
         h1 {
             font-size: 22px;
             font-weight: 700;
-            margin-bottom: 25px;
+            margin-top: 0;
+            margin-bottom: 30px;
             color: #ffffff;
             line-height: 1.4;
         }
         .btn-container {
             position: relative;
             width: 100%;
-            height: 80px; /* Increased height for better button spacing */
+            height: 80px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -65,7 +57,6 @@
             cursor: pointer;
             font-weight: 700;
             letter-spacing: 0.5px;
-            /* Added smooth transition for positioning */
             transition: transform 0.2s ease, box-shadow 0.2s ease, left 0.3s ease-out, top 0.3s ease-out;
         }
         #yesBtn {
@@ -81,7 +72,7 @@
             box-shadow: 0 4px 15px rgba(255, 65, 108, 0.3);
             position: absolute;
             left: 55%;
-            z-index: 10; /* Ensure No button is always on top */
+            z-index: 10;
         }
         #datePickerContainer {
             display: none;
@@ -115,11 +106,6 @@
 <body>
 
     <div class="card">
-        <div class="image-container">
-            <!-- Cat GIF animation -->
-            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Z3N3p6NWsxdnpqZmZubDJvOWVrbHFzcjNqbW5mbGhzcjB0YmxsNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Lq0h93752f6J9tijrh/giphy.gif" alt="Cute animation">
-        </div>
-
         <h1>Will you go on a date with me tracy👻</h1>
 
         <div class="btn-container" id="action-buttons">
@@ -141,38 +127,30 @@
         const actionButtons = document.getElementById('action-buttons');
         const submitDate = document.getElementById('submitDate');
 
-        // Function to make the No button dodge with animation
         function evadeTapping(e) {
-            // Prevent the default touch behavior (which might cause the disappears issue)
             if(e.type === 'touchstart') e.preventDefault();
 
             const btnWidth = noBtn.offsetWidth;
             const btnHeight = noBtn.offsetHeight;
 
-            // Calculate safe bounds within the viewport, adding 50px padding from edges
             const padding = 50;
             const maxX = window.innerWidth - btnWidth - padding;
             const maxY = window.innerHeight - btnHeight - padding;
 
-            // Generate random positions within the safe bounds
             const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
             const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
 
-            // Switch to fixed positioning and apply new coordinates
             noBtn.style.position = 'fixed';
             noBtn.style.left = randomX + 'px';
             noBtn.style.top = randomY + 'px';
         }
 
-        // Add both mouseover (desktop) and touchstart (mobile) listeners
         noBtn.addEventListener('mouseover', evadeTapping);
         noBtn.addEventListener('touchstart', evadeTapping);
 
         yesBtn.addEventListener('click', () => {
-            // Hide the question buttons
             actionButtons.style.display = 'none';
             noBtn.style.display = 'none';
-            // Show the date picker
             datePicker.style.display = 'block';
         });
 
@@ -183,10 +161,9 @@
                 return;
             }
             
-            // IMPORTANT: Replace this with your real phone number (e.g., 254712345678)
+            // Replace with your real phone number starting with country code 254
             const yourPhoneNumber = "254799611634"; 
             
-            // Construct the WhatsApp message URL
             const message = encodeURIComponent(`I picked ${selectedDate} for our date 👻`);
             window.location.href = `https://wa.me/${yourPhoneNumber}?text=${message}`;
         });
