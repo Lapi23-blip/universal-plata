@@ -5,72 +5,130 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Question for Tracy</title>
     <style>
+        * { box-sizing: border-box; }
         body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #0f0c20 0%, #2d132c 50%, #1a0933 100%);
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            text-align: center;
+            padding: 20px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 35px 20px;
+            max-width: 360px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #1a1a1a;
-            color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden; 
-            text-align: center;
         }
-        h1 { font-size: 24px; margin-bottom: 20px; padding: 0 20px; }
         .image-container img {
-            width: 200px;
-            border-radius: 15px;
+            width: 160px;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+            box-shadow: 0 8px 25px rgba(255, 105, 180, 0.35);
         }
-        .btn-container { position: relative; width: 100%; height: 100px; }
+        h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: #ffffff;
+            line-height: 1.4;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        .btn-container {
+            position: relative;
+            width: 100%;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
         button {
-            font-size: 18px;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.1s;
-        }
-        #yesBtn { background-color: #4CAF50; color: white; margin-right: 20px; }
-        #noBtn { background-color: #f44336; color: white; position: absolute; }
-        #datePickerContainer { display: none; margin-top: 30px; }
-        input[type="date"] {
-            padding: 10px;
             font-size: 16px;
-            border-radius: 5px;
+            padding: 12px 28px;
             border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        #yesBtn {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);
+            position: absolute;
+            left: 18%;
+        }
+        #noBtn {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4);
+            position: absolute;
+            left: 55%;
+        }
+        #datePickerContainer {
+            display: none;
+            width: 100%;
+        }
+        #datePickerContainer h3 {
+            font-size: 18px;
             margin-bottom: 15px;
+            color: #f1f1f1;
+        }
+        input[type="date"] {
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.95);
+            color: #222;
+            margin-bottom: 15px;
+            width: 85%;
+            outline: none;
+            font-weight: 600;
         }
         #submitDate {
-            background-color: #2196F3;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
             color: white;
-            display: block;
+            box-shadow: 0 4px 15px rgba(0, 114, 255, 0.4);
             margin: 0 auto;
         }
     </style>
 </head>
 <body>
 
-    <div class="image-container">
-        <!-- ⚠️ CHANGE THIS ⚠️: Replace the link inside src="..." with a link to an image of you, or a meme. -->
-        <img src="https://images.unsplash.com/photo-1518192167132-849495447b85?w=400&q=80" alt="Placeholder">
-    </div>
+    <div class="card">
+        <div class="image-container">
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Z3N3p6NWsxdnpqZmZubDJvOWVrbHFzcjNqbW5mbGhzcjB0YmxsNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Lq0h93752f6J9tijrh/giphy.gif" alt="Cute animation">
+        </div>
 
-    <h1>Will you go on a date with me tracy👻</h1>
+        <h1>Will you go on a date with me tracy👻</h1>
 
-    <div class="btn-container" id="action-buttons">
-        <button id="yesBtn">Yes</button>
-        <button id="noBtn">No</button>
-    </div>
+        <div class="btn-container" id="action-buttons">
+            <button id="yesBtn">Yes</button>
+            <button id="noBtn">No</button>
+        </div>
 
-    <div id="datePickerContainer">
-        <h3>Perfect. Pick a day:</h3>
-        <input type="date" id="dateInput">
-        <button id="submitDate">Confirm</button>
+        <div id="datePickerContainer">
+            <h3>Perfect. Pick a day:</h3>
+            <input type="date" id="dateInput">
+            <button id="submitDate">Confirm</button>
+        </div>
     </div>
 
     <script>
@@ -79,10 +137,6 @@
         const datePicker = document.getElementById('datePickerContainer');
         const actionButtons = document.getElementById('action-buttons');
         const submitDate = document.getElementById('submitDate');
-
-        noBtn.style.left = "55%";
-        yesBtn.style.position = "absolute";
-        yesBtn.style.left = "25%";
 
         function evadeTapping() {
             const btnWidth = noBtn.offsetWidth;
@@ -114,8 +168,8 @@
                 return;
             }
             
-            // ⚠️ CHANGE THIS ⚠️: Put your actual WhatsApp number below. Start with 254 (No '+' sign, no spaces).
-            const yourPhoneNumber = "254799611634"; 
+            // Put your actual phone number here (e.g., 254712345678)
+            const yourPhoneNumber = "25799611634X"; 
             
             const message = encodeURIComponent(`I picked ${selectedDate} for our date 👻`);
             window.location.href = `https://wa.me/${yourPhoneNumber}?text=${message}`;
