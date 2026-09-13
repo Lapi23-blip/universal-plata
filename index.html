@@ -12,7 +12,8 @@
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            background: linear-gradient(135deg, #0f0c20 0%, #2d132c 50%, #1a0933 100%);
+            /* Updated subtle gradient background */
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: #ffffff;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             overflow: hidden;
@@ -20,26 +21,26 @@
             padding: 20px;
         }
         .card {
-            background: rgba(255, 255, 255, 0.07);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
             padding: 35px 20px;
             max-width: 360px;
             width: 100%;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
             align-items: center;
         }
         .image-container img {
-            width: 160px;
-            height: 160px;
+            width: 150px;
+            height: 150px;
             object-fit: cover;
             border-radius: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(255, 105, 180, 0.35);
+            box-shadow: 0 8px 25px rgba(255, 105, 180, 0.3);
         }
         h1 {
             font-size: 22px;
@@ -47,12 +48,11 @@
             margin-bottom: 25px;
             color: #ffffff;
             line-height: 1.4;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
         .btn-container {
             position: relative;
             width: 100%;
-            height: 60px;
+            height: 80px; /* Increased height for better button spacing */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -65,21 +65,23 @@
             cursor: pointer;
             font-weight: 700;
             letter-spacing: 0.5px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            /* Added smooth transition for positioning */
+            transition: transform 0.2s ease, box-shadow 0.2s ease, left 0.3s ease-out, top 0.3s ease-out;
         }
         #yesBtn {
             background: linear-gradient(135deg, #11998e, #38ef7d);
             color: #ffffff;
-            box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);
+            box-shadow: 0 4px 15px rgba(56, 239, 125, 0.3);
             position: absolute;
-            left: 18%;
+            left: 15%;
         }
         #noBtn {
             background: linear-gradient(135deg, #ff416c, #ff4b2b);
             color: #ffffff;
-            box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4);
+            box-shadow: 0 4px 15px rgba(255, 65, 108, 0.3);
             position: absolute;
             left: 55%;
+            z-index: 10; /* Ensure No button is always on top */
         }
         #datePickerContainer {
             display: none;
@@ -95,17 +97,17 @@
             font-size: 16px;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.9);
             color: #222;
             margin-bottom: 15px;
-            width: 85%;
+            width: 90%;
             outline: none;
             font-weight: 600;
         }
         #submitDate {
             background: linear-gradient(135deg, #00c6ff, #0072ff);
             color: white;
-            box-shadow: 0 4px 15px rgba(0, 114, 255, 0.4);
+            box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
             margin: 0 auto;
         }
     </style>
@@ -114,6 +116,7 @@
 
     <div class="card">
         <div class="image-container">
+            <!-- Cat GIF animation -->
             <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Z3N3p6NWsxdnpqZmZubDJvOWVrbHFzcjNqbW5mbGhzcjB0YmxsNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Lq0h93752f6J9tijrh/giphy.gif" alt="Cute animation">
         </div>
 
@@ -138,26 +141,38 @@
         const actionButtons = document.getElementById('action-buttons');
         const submitDate = document.getElementById('submitDate');
 
-        function evadeTapping() {
+        // Function to make the No button dodge with animation
+        function evadeTapping(e) {
+            // Prevent the default touch behavior (which might cause the disappears issue)
+            if(e.type === 'touchstart') e.preventDefault();
+
             const btnWidth = noBtn.offsetWidth;
             const btnHeight = noBtn.offsetHeight;
-            const maxX = window.innerWidth - btnWidth - 20;
-            const maxY = window.innerHeight - btnHeight - 20;
 
-            const randomX = Math.max(10, Math.floor(Math.random() * maxX));
-            const randomY = Math.max(10, Math.floor(Math.random() * maxY));
+            // Calculate safe bounds within the viewport, adding 50px padding from edges
+            const padding = 50;
+            const maxX = window.innerWidth - btnWidth - padding;
+            const maxY = window.innerHeight - btnHeight - padding;
 
+            // Generate random positions within the safe bounds
+            const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
+
+            // Switch to fixed positioning and apply new coordinates
             noBtn.style.position = 'fixed';
             noBtn.style.left = randomX + 'px';
             noBtn.style.top = randomY + 'px';
         }
 
+        // Add both mouseover (desktop) and touchstart (mobile) listeners
         noBtn.addEventListener('mouseover', evadeTapping);
         noBtn.addEventListener('touchstart', evadeTapping);
 
         yesBtn.addEventListener('click', () => {
+            // Hide the question buttons
             actionButtons.style.display = 'none';
             noBtn.style.display = 'none';
+            // Show the date picker
             datePicker.style.display = 'block';
         });
 
@@ -168,9 +183,10 @@
                 return;
             }
             
-            // Put your actual phone number here (e.g., 254712345678)
-            const yourPhoneNumber = "25799611634X"; 
+            // IMPORTANT: Replace this with your real phone number (e.g., 254712345678)
+            const yourPhoneNumber = "254799611634"; 
             
+            // Construct the WhatsApp message URL
             const message = encodeURIComponent(`I picked ${selectedDate} for our date 👻`);
             window.location.href = `https://wa.me/${yourPhoneNumber}?text=${message}`;
         });
