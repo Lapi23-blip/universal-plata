@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Question for Tracy</title>
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * { box-sizing: border-box; }
         body {
@@ -15,9 +17,9 @@
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: #ffffff;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            overflow: hidden;
+            overflow-x: hidden;
             text-align: center;
-            padding: 20px;
+            padding: 15px;
         }
         .card {
             background: rgba(255, 255, 255, 0.05);
@@ -25,33 +27,33 @@
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
-            padding: 40px 24px;
-            max-width: 360px;
+            padding: 25px 20px;
+            max-width: 380px;
             width: 100%;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        h1 {
-            font-size: 22px;
+        h1, h3 {
+            font-size: 20px;
             font-weight: 700;
             margin-top: 0;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             color: #ffffff;
             line-height: 1.4;
         }
         .btn-container {
             position: relative;
             width: 100%;
-            height: 80px;
+            height: 70px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
         button {
-            font-size: 16px;
-            padding: 12px 28px;
+            font-size: 15px;
+            padding: 10px 22px;
             border: none;
             border-radius: 30px;
             cursor: pointer;
@@ -74,69 +76,116 @@
             left: 55%;
             z-index: 10;
         }
-        #datePickerContainer {
+        #datePickerContainer, #placePickerContainer {
             display: none;
             width: 100%;
         }
-        #datePickerContainer h3 {
-            font-size: 18px;
-            margin-bottom: 15px;
-            color: #f1f1f1;
-        }
-        input[type="date"] {
-            padding: 12px;
-            font-size: 16px;
+        input[type="date"], input[type="text"] {
+            padding: 10px 14px;
+            font-size: 15px;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             color: #222;
-            margin-bottom: 15px;
-            width: 90%;
+            margin-bottom: 12px;
+            width: 100%;
             outline: none;
             font-weight: 600;
         }
-        #submitDate {
+        .search-box {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            width: 100%;
+        }
+        .search-box button {
+            background: linear-gradient(135deg, #8e2de2, #4a00e0);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+        #map {
+            height: 220px;
+            width: 100%;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1;
+        }
+        .action-btn {
             background: linear-gradient(135deg, #00c6ff, #0072ff);
             color: white;
             box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
-            margin: 0 auto;
+            width: 100%;
+        }
+        #selectedLocationText {
+            font-size: 13px;
+            color: #38ef7d;
+            margin-bottom: 10px;
+            min-height: 18px;
+            word-break: break-word;
         }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h1>Will you go on a date with me tracy👻</h1>
-
-        <div class="btn-container" id="action-buttons">
-            <button id="yesBtn">Yes</button>
-            <button id="noBtn">No</button>
+        <!-- STEP 1: PROPOSAL -->
+        <div id="proposalStep" style="width: 100%;">
+            <h1>Will you go on a date with me tracy👻</h1>
+            <div class="btn-container" id="action-buttons">
+                <button id="yesBtn">Yes</button>
+                <button id="noBtn">No</button>
+            </div>
         </div>
 
+        <!-- STEP 2: DATE SELECTION -->
         <div id="datePickerContainer">
-            <h3>Perfect. Pick a day:</h3>
+            <h3>Step 1: Pick a day 📅</h3>
             <input type="date" id="dateInput">
-            <button id="submitDate">Confirm</button>
+            <button class="action-btn" id="nextToPlaceBtn">Next: Choose Place 📍</button>
+        </div>
+
+        <!-- STEP 3: PLACE SELECTION (MAP) -->
+        <div id="placePickerContainer">
+            <h3>Step 2: Pick a spot in Kenya 🍽️</h3>
+            <div class="search-box">
+                <input type="text" id="placeSearchInput" placeholder="Search restaurant (e.g. Java House)">
+                <button id="searchBtn">Search</button>
+            </div>
+            <div id="map"></div>
+            <div id="selectedLocationText">Tap a spot or search above</div>
+            <button class="action-btn" id="submitAll">Confirm Date & Place 🚀</button>
         </div>
     </div>
 
+    <!-- Leaflet Map JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
+        const proposalStep = document.getElementById('proposalStep');
         const datePicker = document.getElementById('datePickerContainer');
-        const actionButtons = document.getElementById('action-buttons');
-        const submitDate = document.getElementById('submitDate');
+        const placePicker = document.getElementById('placePickerContainer');
+        const nextToPlaceBtn = document.getElementById('nextToPlaceBtn');
+        const submitAll = document.getElementById('submitAll');
+        const searchBtn = document.getElementById('searchBtn');
+        const placeSearchInput = document.getElementById('placeSearchInput');
+        const selectedLocationText = document.getElementById('selectedLocationText');
 
+        let chosenDate = "";
+        let chosenPlace = "a local spot in Kenya";
+        let map, marker;
+
+        // Dodging No Button logic
         function evadeTapping(e) {
             if(e.type === 'touchstart') e.preventDefault();
-
             const btnWidth = noBtn.offsetWidth;
             const btnHeight = noBtn.offsetHeight;
-
             const padding = 50;
             const maxX = window.innerWidth - btnWidth - padding;
             const maxY = window.innerHeight - btnHeight - padding;
-
             const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
             const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
 
@@ -149,22 +198,74 @@
         noBtn.addEventListener('touchstart', evadeTapping);
 
         yesBtn.addEventListener('click', () => {
-            actionButtons.style.display = 'none';
-            noBtn.style.display = 'none';
+            proposalStep.style.display = 'none';
             datePicker.style.display = 'block';
         });
 
-        submitDate.addEventListener('click', () => {
-            const selectedDate = document.getElementById('dateInput').value;
-            if(!selectedDate) {
-                alert("Pick a date first.");
+        nextToPlaceBtn.addEventListener('click', () => {
+            chosenDate = document.getElementById('dateInput').value;
+            if(!chosenDate) {
+                alert("Please select a date first.");
                 return;
             }
-            
-            // Replace with your real phone number starting with country code 254
+            datePicker.style.display = 'none';
+            placePicker.style.display = 'block';
+
+            // Initialize Map centered on Kenya (Nakuru / Nairobi region)
+            setTimeout(() => {
+                map = L.map('map').setView([-0.3031, 36.0800], 12);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+
+                // Handle manual map click to drop pin
+                map.on('click', function(e) {
+                    const lat = e.latlng.lat.toFixed(4);
+                    const lng = e.latlng.lng.toFixed(4);
+                    if (marker) map.removeLayer(marker);
+                    marker = L.marker([lat, lng]).addTo(map);
+                    chosenPlace = `Pinned Location (${lat}, ${lng})`;
+                    selectedLocationText.innerText = `Selected: Custom Pin (${lat}, ${lng})`;
+                });
+            }, 200);
+        });
+
+        // Search Kenya restaurants via Nominatim OpenStreetMap API
+        searchBtn.addEventListener('click', () => {
+            const query = placeSearchInput.value.trim();
+            if (!query) return;
+
+            selectedLocationText.innerText = "Searching...";
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=ke`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        const spot = data[0];
+                        const lat = spot.lat;
+                        const lon = spot.lon;
+                        map.setView([lat, lon], 15);
+
+                        if (marker) map.removeLayer(marker);
+                        marker = L.marker([lat, lon]).addTo(map).bindPopup(spot.display_name).openPopup();
+
+                        // Shorten venue name for clean WhatsApp text
+                        chosenPlace = spot.display_name.split(',')[0];
+                        selectedLocationText.innerText = `Selected: ${chosenPlace}`;
+                    } else {
+                        selectedLocationText.innerText = "No results found in Kenya. Try pinning on the map!";
+                    }
+                })
+                .catch(() => {
+                    selectedLocationText.innerText = "Search error. Tap anywhere on the map to set location.";
+                });
+        });
+
+        submitAll.addEventListener('click', () => {
+            // REPLACE THIS WITH YOUR REAL WHATSAPP NUMBER (Starting with 254)
             const yourPhoneNumber = "254799611634"; 
             
-            const message = encodeURIComponent(`I picked ${selectedDate} for our date 👻`);
+            const message = encodeURIComponent(`I picked ${chosenDate} for our date at ${chosenPlace} 👻`);
             window.location.href = `https://wa.me/${yourPhoneNumber}?text=${message}`;
         });
     </script>
